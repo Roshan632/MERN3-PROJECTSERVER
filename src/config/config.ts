@@ -20,8 +20,10 @@ import { config } from "dotenv"
 config()
 
 export const envConfig = {
-  connectionString: process.env.CONNECTION_STRING,
-  port: process.env.PORT,
-  jwtSecretKey: process.env.JWT_SECRET_KEY,
-  jwtExpiresIn: process.env.JWT_EXPIRES_IN
+  connectionString: process.env.CONNECTION_STRING?.trim(),
+  port: process.env.PORT?.trim(),
+  jwtSecretKey: process.env.JWT_SECRET_KEY?.trim(),
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN?.trim(),
+  email: process.env.EMAIL?.trim(),
+  emailPassword: process.env.EMAIL_PASSWORD?.trim()
 }
