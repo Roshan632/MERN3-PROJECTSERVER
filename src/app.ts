@@ -8,13 +8,18 @@
 
 
 import express, { Request, Response } from 'express'
-const app = express()
+
 import userRoute from './routes/userRoute'
 import "./database/connection"
+import categoryRoute from './routes/categoryRoute'
+
+
+const app = express()
 
 app.use(express.json())
 
 app.use("/api/auth", userRoute)
+app.use("/api/category",categoryRoute)
 
 // const schedule = require('node-schedule');
 
