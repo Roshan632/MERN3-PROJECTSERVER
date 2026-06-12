@@ -25,5 +25,8 @@ export const envConfig = {
   jwtSecretKey: process.env.JWT_SECRET_KEY?.trim(),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN?.trim(),
   email: process.env.EMAIL?.trim(),
-  emailPassword: process.env.EMAIL_PASSWORD?.trim()
+  emailPassword: process.env.EMAIL_PASSWORD?.trim(),
+  adminEmail: process.env.ADMIN_EMAIL?.trim(),
+  adminPassword: process.env.ADMIN_PASSWORD?.trim(),
+  adminUsername: process.env.ADMIN_USERNAME?.trim()
 }
