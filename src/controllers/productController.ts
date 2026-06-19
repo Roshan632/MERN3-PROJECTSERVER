@@ -84,6 +84,41 @@ class ProductController{
             })
         }
     }
+
+
+    // update
+    async updateProduct(req:Request,res:Response) : Promise<void>{
+        const {id} = req.params
+        const {productName,productDescription,productPrice,productTotalStock,discount,categoryId} = req.body
+        const filename = req.file ? req.file.filename : "https://weimaracademy.org/wp-content/uploads/2021/08/dummy-user.png"
+        const datas = await Product.findAll({
+            where : {
+                id : id
+            }
+        })
+        if(datas.length === 0){
+            res.status(404).json({
+                message : "No product with that id"
+            })
+        }else{
+            await Product.update({
+                productName : productName || datas[0].get("productName"),
+                productDescription : productDescription || datas[0].get("productDescription"),
+                productPrice : productPrice || datas[0].get("productPrice"),
+                productTotalStock : productTotalStock || datas[0].get("productTotalStock"),
+                discount : discount || datas[0].get("discount"),
+                categoryId : categoryId || datas[0].get("categoryId"),
+                productImageUrl : filename
+            }, {
+                where : {
+                    id : id
+                }
+            })
+            res.status(200).json({
+                message : "Product updated successfully"
+            })
+        }
+    }
 }
 
 export default new ProductController
