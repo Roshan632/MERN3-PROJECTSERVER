@@ -31,6 +31,8 @@
 
 import { Sequelize } from 'sequelize-typescript'
 import { envConfig } from '../config/config'
+import Product from './models/productModel'
+import Category from './models/categoryModel'
 
 const sequelize = new Sequelize(envConfig.connectionString as string, {
     models: [__dirname + '/models']
@@ -51,6 +53,10 @@ try {
 sequelize.sync({ force: false, alter: false }).then(() => {   /// force : false means it will not drop the tables if they already exist, it will only create new tables if they don't exist. If you set force : true, it will drop the existing tables and create new ones, which can lead to data loss. So it's safer to use force : false in production environments.
     console.log(" synced !! ")
 })
+
+// relationships // 
+Product.belongsTo(Category)
+Category.hasOne(Product)
 
 export default sequelize
 
