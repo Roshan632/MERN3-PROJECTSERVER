@@ -13,7 +13,7 @@ import userRoute from './routes/userRoute'
 import "./database/connection"
 import categoryRoute from './routes/categoryRoute'
 import productRoute from './routes/productRoute'
-
+import OrderRoute from './routes/orderRoute'
 const app = express()
 
 app.use(express.json())
@@ -22,6 +22,7 @@ app.use(express.json())
 app.use("/api/auth", userRoute)
 app.use("/api/category",categoryRoute)
 app.use("/api/product",productRoute)
+app.use("/api/order",OrderRoute)
 // const schedule = require('node-schedule');
 
 // const job = schedule.scheduleJob('42 * * * *', function(){

@@ -79,7 +79,7 @@ OrderDetails.belongsTo(Order,{foreignKey:"orderId"})
 
 //OrderDetails Table ma  ProductID
 
-Product.hasOne(OrderDetails,{foreignKey:"productId"})
+Product.hasMany(OrderDetails,{foreignKey:"productId"})
 OrderDetails.belongsTo(Product,{foreignKey:"productId"})
 
 
