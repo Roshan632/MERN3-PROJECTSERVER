@@ -17,6 +17,7 @@ import productRoute from './routes/productRoute'
 const app = express()
 
 app.use(express.json())
+// app.use(express.urlencoded({ extended: true }))
 
 app.use("/api/auth", userRoute)
 app.use("/api/category",categoryRoute)

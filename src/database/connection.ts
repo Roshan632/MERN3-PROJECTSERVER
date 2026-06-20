@@ -33,6 +33,10 @@ import { Sequelize } from 'sequelize-typescript'
 import { envConfig } from '../config/config'
 import Product from './models/productModel'
 import Category from './models/categoryModel'
+import Order from './models/orderModel'
+import User from './models/userModel'
+import Payment from './models/paymentModel'
+import OrderDetails from './models/orderDetails'
 
 const sequelize = new Sequelize(envConfig.connectionString as string, {
     models: [__dirname + '/models']
@@ -57,6 +61,27 @@ sequelize.sync({ force: false, alter: true }).then(() => {   /// force : false m
 // relationships // 
 Product.belongsTo(Category,{foreignKey: 'categoryId'})
 Category.hasOne(Product,{foreignKey: 'categoryId'})
+
+//User X Order
+//order table ma userid foreign key aayo
+User.hasMany(Order,{foreignKey:'userId'})
+Order.belongsTo(User,{foreignKey:'userId'})
+
+// Payment table ma orderId
+Order.hasOne(Payment,{foreignKey:"orderId"})
+Payment.belongsTo(Order,{foreignKey:"orderId"})
+
+
+//OrderDetails Table ma OrderId
+
+Order.hasOne(OrderDetails,{foreignKey:"orderId"})
+OrderDetails.belongsTo(Order,{foreignKey:"orderId"})
+
+//OrderDetails Table ma  ProductID
+
+Product.hasOne(OrderDetails,{foreignKey:"productId"})
+OrderDetails.belongsTo(Product,{foreignKey:"productId"})
+
 
 export default sequelize
 
