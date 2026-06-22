@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import Order from "../database/models/orderModel";
 import OrderDetails from "../database/models/orderDetails";
-import { PaymentMethod } from "../globals/types";
+import { PaymentMethod, PaymentStatus } from "../globals/types";
 import Payment from "../database/models/paymentModel";
 import axios from 'axios'
+import { promises } from "node:dns";
 
 interface IProduct{
     productId : string,
@@ -57,8 +58,8 @@ class OrderController{
                         return_url: "http://localhost:5173/", //after successful
                         website_url: "http://localhost:5173/", //your home page
                         amount: totalAmount * 100,  //khalti accepts in paisa so
-                        purchase_order_id: orderData.id, //your orderId
-                        purchase_order_name: "order_" + orderData.id  //Your OrderId Name
+                        purchase_order_id: orderData.id, //your orderId ie unique hunu paro
+                        purchase_order_name: "order_" + orderData.id  //Your OrderId Name same unique hunu parxa
                 }
 
                 try{
@@ -69,12 +70,13 @@ class OrderController{
                     })
 
                     const khaltiResponse = khaltiRes.data
-                    paymentData.pidx = khaltiResponse.pidx
+                    paymentData.pidx = khaltiResponse.pidx   //pidx is unique identifier for payment transaction. with pidx we should do verification for payment after initiation success
                     await paymentData.save()
 
                     res.status(200).json({
                         message: "Khalti payment initiated",
-                        url: khaltiResponse.payment_url
+                        url: khaltiResponse.payment_url,
+                        pidx:khaltiResponse.pidx
                     })
                     return
                 }catch(err:any){
@@ -89,6 +91,40 @@ class OrderController{
             res.status(200).json({
                 message : "Order created successfully"
             })
+    }
+   static async verifyTransaction(req:OrderRequest,res:Response):Promise<void>{
+        const {pidx}= req.body
+        if(!pidx){
+            res.status(400).json({
+                message:"Please provide pidx"
+            })
+            return
+        }
+        const response=await axios.post("https://dev.khalti.com/api/v2/epayment/lookup/",{
+            pidx : pidx
+        },{
+            headers : {
+                Authorization: "Key 937f47f08a504d26bc548980bfc2db0f"
+
+            }
+        })
+        console.log(response)
+        const data = response.data
+        if(data.status === "Completed"){
+            await Payment.update({PaymentStatus:PaymentStatus.Paid},{
+                where :{
+                    pidx:pidx
+                }
+            })
+            res.status(200).json({
+                message:"Payment Verified Successfully!!!"
+            })
+
+        }else{
+            res.status(200).json({
+                message:"Payment not verified or cancelled"
+            })
+        }
     }
 }
 
