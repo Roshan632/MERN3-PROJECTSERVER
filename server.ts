@@ -8,6 +8,9 @@ import User from './src/database/models/userModel.js';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { Role } from './src/middleware/userMiddleware.js';
 import jwt from 'jsonwebtoken'
+import { Socket } from 'node:dgram';
+import Order from './src/database/models/orderModel.js';
+import { OrderStatus } from './src/globals/types/index.js';
 function startServer(){
    const port = envConfig.port || 4000;
    
@@ -29,18 +32,19 @@ let addToOnlineUsers=(socketId:string,userId:string,role:string)=>{
   onlineUsers.push({socketId,userId,role})
 }
 io.on("connection",(socket)=>{
- //console.log("Client connected vayo hai!!!")
- const {token}= socket.handshake.auth   //jwt token
+ //console.log("Client connected vayo hai!!!")  //postman ma socket.io xaina
+   const token= socket.handshake.headers.token //jwt token
  if(token){
+  console.log(token)
 
-       jwt.verify(token,envConfig.jwtSecretKey as string, async (err:any,result:any)=>{
+       jwt.verify(token as string,envConfig.jwtSecretKey as string, async (err:any,result:any)=>{
         if(err){
           socket.emit("error",err)
             
         }else{
           const userData = await User.findByPk(result.userId) 
           if(!userData){
-            socket.emit("error","no user found with that token")
+            socket.emit("error","No user found with that token")
              return 
 
           }
@@ -57,11 +61,51 @@ io.on("connection",(socket)=>{
         
        })
 
+ }else{
+  socket.emit("error","Please provide token ")
  }
+ socket.on("updateOrderStatus",async(data)=>{
+  const {status,orderId,userId}=data
+  const findUser = onlineUsers.find(user=>user.userId==userId)
+ const datas=await Order.findAll()
+ console.log(datas)
+   
+   
+    await Order.update(
+      {
+        OrderStatus:status
+      },
+      {
+        where:{
+        id:orderId
+      }
+
+      }
+      
+      
+    )
+
+
+if(findUser){
+  io.to(findUser.socketId).emit("success","Order Status updated successfully!!!")
+
+
+
+   
+  }else{
+    socket.emit("error","User is not online!!!")
+  }
+ })
 
 })
 }
 
 
+
+
 startServer();
+
+
+//on means to send
+//emit means listening in socket io
 

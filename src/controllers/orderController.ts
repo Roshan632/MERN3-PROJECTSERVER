@@ -74,9 +74,10 @@ class OrderController{
                     await paymentData.save()
 
                     res.status(200).json({
-                        message: "Khalti payment initiated",
+                        message: "Khalti payment initiated and Order Created successfully!!!",
                         url: khaltiResponse.payment_url,
-                        pidx:khaltiResponse.pidx
+                        pidx:khaltiResponse.pidx,
+                        data
                     })
                     return
                 }catch(err:any){
@@ -88,8 +89,12 @@ class OrderController{
         // esewa logic
 
       }
+        
+
+      
             res.status(200).json({
-                message : "Order created successfully"
+                message : "Order created successfully",
+                
             })
     }
    static async verifyTransaction(req:OrderRequest,res:Response):Promise<void>{
