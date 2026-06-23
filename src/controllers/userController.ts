@@ -21,15 +21,15 @@ class UserController {
       return
     }
 
-    const [data] = await User.findAll({
+    const existingUser = await User.findOne({
       where: {
         email: email
       }
     })
 
-    if (data) {
+    if (existingUser) {
       res.status(400).json({
-        message: "Please try again later!!"
+        message: "Email already registered"
       })
       return
     }
@@ -53,7 +53,7 @@ class UserController {
 
   static async login (req: Request, res: Response) {
     // accept incoming data --> email, password
-    const { email, password } = req.body // password - roshan --> hash() --> $234234324fjlsdf
+    const { email, password } = req.body || {} // password - roshan --> hash() --> $234234324fjlsdf
     if (!email || !password) {
       res.status(400).json({
         message: "Please provide email, password"
@@ -62,7 +62,7 @@ class UserController {
     }
 
     // check email exist or not at first
-    const [user] = await User.findAll({     // find --> findAll --array , findById--> findByPk --Objecct
+    const user = await User.findOne({
       where: {
         email: email,
       }

@@ -14,7 +14,7 @@ class cartController{
 
         //userid,productid,quantity
         const userId=req.user?.id
-        const {productId,quantity}=req.body
+        const {productId,quantity}=req.body || {}
         if(!productId || !quantity){
             res.status(400).json({
                 message:"Please provide productId and quantity"

@@ -55,7 +55,7 @@ try {
     console.log(error)
 }
 
-sequelize.sync({ force: false, alter: true }).then(() => {   /// force : false means it will not drop the tables if they already exist, it will only create new tables if they don't exist. If you set force : true, it will drop the existing tables and create new ones, which can lead to data loss. So it's safer to use force : false in production environments.
+sequelize.sync({ force: false, alter: false }).then(() => {   /// force : false means it will not drop the tables if they already exist, it will only create new tables if they don't exist. If you set force : true, it will drop the existing tables and create new ones, which can lead to data loss. So it's safer to use force : false in production environments.
     console.log(" synced !! ")
 })
 
