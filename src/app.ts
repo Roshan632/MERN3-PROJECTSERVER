@@ -33,6 +33,8 @@ app.use("/api/category",categoryRoute)
 app.use("/api/product",productRoute)
 app.use("/api/order",OrderRoute)
 app.use("/api/cart",CartRoute)
+
+app.use(express.static('./src/uploads'))
 // const schedule = require('node-schedule');
 
 // const job = schedule.scheduleJob('42 * * * *', function(){
