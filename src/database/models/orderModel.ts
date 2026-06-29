@@ -1,4 +1,4 @@
-import {Table,Column,Model,DataType} from 'sequelize-typescript'
+import {Table,Column,Model,DataType, AllowNull} from 'sequelize-typescript'
 import { OrderStatus } from '../../globals/types'
 
 @Table({
@@ -29,7 +29,7 @@ class Order extends Model{
 
     @Column({
         type : DataType.STRING,
-        allowNull : false,
+        //allowNull : false,
         validate : {
             len:{
                 args : [3,255],
@@ -37,7 +37,24 @@ class Order extends Model{
             }
         }
     })
-    declare shippingAddress : string
+    declare AddressLine : string
+
+    @Column({
+        type : DataType.STRING,
+        //allowNull: false
+    })
+    declare City : string
+    @Column({
+        type : DataType.STRING,
+        //allowNull: false
+    })
+    declare State : string
+
+     @Column({
+        type : DataType.STRING,
+        //allowNull: false
+    })
+    declare zipCode : string
 
     @Column({
         type : DataType.FLOAT,
@@ -54,6 +71,28 @@ class Order extends Model{
             defaultValue: OrderStatus.Pending
     })
         declare orderStatus : string
+
+    @Column({
+            type:DataType.STRING,
+            
+            allowNull:false,
+            defaultValue:"Anonymous"
+        })
+        declare firstName:string
+      @Column({
+            type:DataType.STRING,
+            allowNull:false,
+            defaultValue:"Anonymous"
+        })
+        declare lastName:string
+     @Column({
+            type:DataType.STRING,
+            allowNull:false,
+            defaultValue:"anonymous@gmail.com"
+        })
+        declare email:string
+
+
 
     }
 

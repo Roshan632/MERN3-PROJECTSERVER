@@ -5,6 +5,7 @@ import { PaymentMethod, PaymentStatus } from "../globals/types";
 import Payment from "../database/models/paymentModel";
 import axios from 'axios'
 import { promises } from "node:dns";
+import Cart from "../database/models/cartModel";
 
 interface IProduct{
     productId : string,
@@ -20,9 +21,9 @@ interface OrderRequest extends Request{
 class OrderController{
     static async createOrder(req:OrderRequest,res:Response):Promise<void>{
         const userId =  req.user?.id
-        const {phoneNumber,shippingAddress,totalAmount,paymentMethod} = req.body 
+        const {phoneNumber,addressLine,city,state,firstName,lastName,email,zipCode,totalAmount,paymentMethod} = req.body 
         const products:IProduct[] = req.body.products
-        if(!phoneNumber || !shippingAddress || !totalAmount || products.length == 0 ){
+        if(!phoneNumber || !addressLine || !city || !state || !zipCode || !totalAmount || products.length == 0 || !firstName || !lastName || !email){
             res.status(400).json({
                 message : "Please provide phoneNumber,shippingAddress,totalAmount,products"
             })
@@ -31,18 +32,36 @@ class OrderController{
         // for order 
         const orderData = await Order.create({
             phoneNumber, 
-            shippingAddress, 
+            city,
+            state,
+            zipCode, 
+            addressLine,
             totalAmount, 
-            userId
+            userId,
+            firstName,
+            lastName,
+            email
+
         })
+        let data;
+
         // for orderDetails
         // console.log(orderData,"OrderData!!")
         // console.log(products)
             for (const product of products){
-                await OrderDetails.create({
+                data=await OrderDetails.create({
                         quantity : product.productQty,
                         productId : product.productId,
                         orderId : orderData.id
+                })
+                await Cart.destroy({
+                    where:{
+                        
+                        productId : product.productId,
+                        userId : userId
+
+                    }
+                    
                 })
             }
       // for payment 
@@ -78,6 +97,12 @@ class OrderController{
                         url: khaltiResponse.payment_url,
                         pidx:khaltiResponse.pidx,
                         data
+
+                        
+                    
+                            
+
+                        
                     })
                     return
                 }catch(err:any){
@@ -85,17 +110,21 @@ class OrderController{
                     res.status(500).json({ message: "Failed to initiate Khalti payment" })
                     return
                 }
-      }else{
+      }else if (paymentMethod == PaymentMethod.Esewa){
         // esewa logic
+
+      }else{
+        res.status(200).json({
+                message : "Order created successfully",
+                data
+                
+            })
 
       }
         
 
       
-            res.status(200).json({
-                message : "Order created successfully",
-                
-            })
+            
     }
    static async verifyTransaction(req:OrderRequest,res:Response):Promise<void>{
         const {pidx}= req.body
@@ -137,8 +166,8 @@ export default OrderController
 
 /* 
 {  
-    shippingAddress : "Itahari", 
-    phoneNumber : 912323, 
+    shippingAddress : "", 
+    phoneNumber : 912323333, 
     totalAmount : 1232, 
     products : [{
  productId : 89123123, 
