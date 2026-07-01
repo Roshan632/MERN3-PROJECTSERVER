@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Order from "../database/models/orderModel";
 import OrderDetails from "../database/models/orderDetails";
-import { PaymentMethod, PaymentStatus } from "../globals/types";
+import { PaymentMethod, PaymentStatus, OrderStatus } from "../globals/types";
 import Payment from "../database/models/paymentModel";
 import axios from 'axios'
 import { promises } from "node:dns";
@@ -18,6 +18,10 @@ interface OrderRequest extends Request{
     user? : {
         id : string
     }
+}
+
+class OrderWithPaymentId extends Order{
+  declare paymentId : string | null 
 }
 
 class OrderController{
@@ -228,6 +232,91 @@ class OrderController{
                 data:[]
             })
         }
+    }
+    static async cancelMyOrder(req:OrderRequest,res:Response):Promise<void>{
+      const userId = req.user?.id 
+      const orderId = req.params.id 
+      const [order] = await Order.findAll({
+        where : {
+          userId : userId, 
+          id : orderId 
+        }
+      })
+      if(!order){
+        res.status(400).json({
+          message : "No order with that Id"
+        })
+        return 
+      }
+      // check order status 
+      if(order.orderStatus === OrderStatus.Ontheway || order.orderStatus === OrderStatus.Preparation){
+        res.status(403).json({
+          message : "You cannot cancelled order, it is on the way or preparation mode"
+        })
+        return
+      }
+      await Order.update({orderStatus : OrderStatus.Cancelled},{
+        where : {
+          id : orderId
+        }
+      })
+      res.status(200).json({
+        message : "Order cancelled successfully"
+      })
+    }
+    static async changeOrderStatus(req:OrderRequest,res:Response) : Promise<void>{
+      const orderId = req.params.id 
+      const {orderStatus} = req.body
+      if(!orderId || !orderStatus){
+        res.status(400).json({
+          message : "Please provide orderId and orderStatus"
+        })
+      }
+      await Order.update({orderStatus : orderStatus},{
+        where : {
+          id : orderId
+        }
+      })
+      res.status(200).json({
+        message : "Order status updated successfully"
+      })
+    }
+    static async deleteOrder(req:OrderRequest, res:Response) : Promise<void>{
+
+      const rawOrderId = req.params.id
+      const orderId = Array.isArray(rawOrderId) ? rawOrderId[0] : rawOrderId
+      if(!orderId){
+        res.status(400).json({
+          message : "Please provide orderId"
+        })
+        return
+      }
+      const order = await Order.findByPk(orderId) as OrderWithPaymentId | null
+      if(!order){
+        res.status(404).json({
+          message : "You dont have that orderId order"
+        })
+        return
+      }
+      const paymentId = order.paymentId
+      await OrderDetails.destroy({
+        where : {
+          orderId : orderId
+        }
+      })
+      await Payment.destroy({
+        where : {
+          id : paymentId
+        }
+      })
+      await Order.destroy({
+        where : {
+          id : orderId
+        }
+      })
+      res.status(200).json({
+        message : "Order delete successfully"
+      })
     }
 
 }
