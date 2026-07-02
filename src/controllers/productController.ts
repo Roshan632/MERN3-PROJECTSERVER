@@ -142,7 +142,7 @@ class ProductController{
             })
             return
         }
-        await Product.create({
+        const product = await Product.create({
             productName,
             productDescription,
             productPrice,
@@ -152,7 +152,8 @@ class ProductController{
             productImageUrl : filename
         })
         res.status(200).json({
-            message : "Product created successfully"
+            message : "Product created successfully",
+            data: product
         })
     }
     async getAllProducts(req:Request,res:Response) : Promise<void>{

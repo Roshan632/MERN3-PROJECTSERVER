@@ -33,7 +33,9 @@ let addToOnlineUsers=(socketId:string,userId:string,role:string)=>{
 }
 io.on("connection",(socket)=>{
  //console.log("Client connected vayo hai!!!")  //postman ma socket.io xaina
-   const token= socket.handshake.headers.token //jwt token
+   console.log("connected")
+        const {token} = socket.handshake.auth // jwt token 
+        console.log(token,"TOKEN")
  if(token){
   console.log(token)
 
@@ -48,8 +50,9 @@ io.on("connection",(socket)=>{
              return 
 
           }
+            console.log(socket.id,result.userId,userData.role)
           addToOnlineUsers(socket.id,result.userId,userData.role)
-          
+          console.log(onlineUsers)
               
                
               
@@ -61,11 +64,14 @@ io.on("connection",(socket)=>{
         
        })
 
- }else{
-  socket.emit("error","Please provide token ")
- }
+  }else{
+                console.log("triggered")
+                socket.emit("error","Please provide token")
+            }
+            console.log(onlineUsers)
  socket.on("updateOrderStatus",async(data)=>{
   const {status,orderId,userId}=data
+  console.log(data,"USS")
   const findUser = onlineUsers.find(user=>user.userId==userId)
  const datas=await Order.findAll()
  console.log(datas)
@@ -87,7 +93,8 @@ io.on("connection",(socket)=>{
 
 
 if(findUser){
-  io.to(findUser.socketId).emit("success","Order Status updated successfully!!!")
+  console.log(findUser.socketId,"FS")
+                io.to(findUser.socketId).emit("statusUpdated",data)
 
 
 
