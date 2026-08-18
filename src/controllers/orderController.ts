@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { Op } from "sequelize";
 import Order from "../database/models/orderModel";
 import OrderDetails from "../database/models/orderDetails";
 import { PaymentMethod, PaymentStatus, OrderStatus } from "../globals/types";
@@ -194,9 +195,17 @@ class OrderController{
         }
     }
     static async fetchAllOrders(req:OrderRequest,res:Response):Promise<void>{
-      
+      const search = String(req.query.search || "").trim()
+      const whereClause = search ? {
+        [Op.or]: [
+          { id: search },
+          { firstName: { [Op.iLike]: `%${search}%` } },
+          { lastName: { [Op.iLike]: `%${search}%` } }
+        ]
+      } : undefined
+
       const orders = await Order.findAll({
-       
+        where: whereClause,
         attributes : ["totalAmount","id","orderStatus"], 
         include : {
           model : Payment, 

@@ -85,8 +85,18 @@ class UserController {
         const token = generateToken(user.id)
         res.status(200).json({
           message: "Logged in success 🥰",
-          token
-        })
+          token,
+          user: {
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    role: user.role
+  },
+  role: user.role,
+  isAdmin: user.role === "admin"
+
+})
+       
       }
     }
   }

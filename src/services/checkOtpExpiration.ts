@@ -10,7 +10,7 @@ const checkOtpExpiration = (res:Response,otpGeneratedTime:string,thresholdTime:n
         sendResponse(res,200,"Valid OTP, now you can proceed to reset password 😌")
     }else{
         //otp expires vayo
-        sendResponse(res,403,"OTP expired, Sorry try again later 😭!!")
+        sendResponse(res,403,"OTP expired, Sorry try again later next time 😭!!")
 
     }
 }

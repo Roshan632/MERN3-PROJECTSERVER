@@ -15,6 +15,7 @@ router.route("/:id")
 .post(userMiddleware.isUserLoggedIn,userMiddleware.accessTo(Role.Admin), 
 errorHandler(productController.deleteProduct))
 .get(errorHandler(productController.getSingleProduct))
+.patch(userMiddleware.isUserLoggedIn,userMiddleware.accessTo(Role.Admin), upload.single('productImage'), errorHandler(productController.updateProduct))
 .delete(userMiddleware.isUserLoggedIn,userMiddleware.accessTo(Role.Admin), errorHandler(productController.deleteProduct))
 
 
